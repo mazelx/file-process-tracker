@@ -157,8 +157,6 @@ class Config:
             **kwargs: CLI arguments to apply
         """
         cli_mappings = {
-            'source': ('source_dir',),
-            'target': ('target_dir',),
             'batch_size': ('processing', 'batch_size'),
             'dry_run': ('execution', 'dry_run'),
             'compute_hash': ('hash', 'compute'),

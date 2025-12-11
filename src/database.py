@@ -9,6 +9,19 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Configure SQLite datetime adapters for Python 3.12+ compatibility
+def adapt_datetime(dt):
+    """Convert datetime to ISO 8601 string for SQLite storage"""
+    return dt.isoformat()
+
+def convert_datetime(s):
+    """Convert ISO 8601 string from SQLite to datetime object"""
+    return datetime.fromisoformat(s.decode())
+
+# Register the adapters and converters
+sqlite3.register_adapter(datetime, adapt_datetime)
+sqlite3.register_converter("timestamp", convert_datetime)
+
 
 class DatabaseManager:
     """SQLite database manager for file tracking"""

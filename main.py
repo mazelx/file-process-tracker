@@ -7,7 +7,7 @@ import sys
 import click
 from pathlib import Path
 from datetime import datetime
-import json
+import json as json_module
 
 from src.config_loader import Config
 from src.database import DatabaseManager
@@ -16,16 +16,6 @@ from src.logger import setup_logging
 
 
 @click.command()
-@click.option(
-    '--source',
-    type=click.Path(exists=True, file_okay=False, dir_okay=True),
-    help='Source directory containing files to process'
-)
-@click.option(
-    '--target',
-    type=click.Path(file_okay=False, dir_okay=True),
-    help='Target directory for file copies'
-)
 @click.option(
     '--batch-size',
     type=int,
@@ -88,8 +78,6 @@ from src.logger import setup_logging
     help='JSON format output'
 )
 def main(
-    source,
-    target,
     batch_size,
     dry_run,
     compute_hash,
@@ -115,8 +103,6 @@ def main(
 
         # Apply CLI overrides
         cli_overrides = {
-            'source': source,
-            'target': target,
             'batch_size': batch_size,
             'dry_run': dry_run,
             'compute_hash': compute_hash,
@@ -149,7 +135,7 @@ def main(
             if check_integrity:
                 result = db.check_integrity()
                 if json:
-                    print(json.dumps(result, indent=2, default=str))
+                    print(json_module.dumps(result, indent=2, default=str))
                 else:
                     logger.info("=== Integrity Check ===")
                     logger.info(f"Status: {result['status']}")
@@ -164,7 +150,7 @@ def main(
             if list_processed:
                 files = db.get_processed_files(limit=100)
                 if json:
-                    print(json.dumps(files, indent=2, default=str))
+                    print(json_module.dumps(files, indent=2, default=str))
                 else:
                     logger.info(f"=== Last processed files ({len(files)}) ===")
                     for f in files:
@@ -179,7 +165,7 @@ def main(
             if stats:
                 statistics = db.get_statistics()
                 if json:
-                    print(json.dumps(statistics, indent=2, default=str))
+                    print(json_module.dumps(statistics, indent=2, default=str))
                 else:
                     logger.info("=== Statistics ===")
                     logger.info(f"Processed files: {statistics['total_files']}")
@@ -208,7 +194,7 @@ def main(
                     logger.info("=== Orphan Files Cleanup ===")
                 deleted = processor.clean_target_orphans()
                 if json:
-                    print(json.dumps({'deleted': deleted}, indent=2))
+                    print(json_module.dumps({'deleted': deleted}, indent=2))
                 else:
                     logger.info(f"Orphan files deleted: {deleted}")
                 return
@@ -229,7 +215,7 @@ def main(
                     'total_size_mb': result['total_size'] / (1024 * 1024),
                     'duration': result.get('duration', 0)
                 }
-                print(json.dumps(compact_result, indent=2))
+                print(json_module.dumps(compact_result, indent=2))
             else:
                 logger.info("=== Processing Summary ===")
                 logger.info(f"Processed files: {result['processed']}")
@@ -260,21 +246,21 @@ def main(
         if not json:
             click.echo(f"Error: {str(e)}", err=True)
         else:
-            print(json.dumps({'error': str(e)}, indent=2))
+            print(json_module.dumps({'error': str(e)}, indent=2))
         sys.exit(1)
 
     except ValueError as e:
         if not json:
             click.echo(f"Configuration error: {str(e)}", err=True)
         else:
-            print(json.dumps({'error': str(e)}, indent=2))
+            print(json_module.dumps({'error': str(e)}, indent=2))
         sys.exit(1)
 
     except Exception as e:
         if not json:
             click.echo(f"Unexpected error: {str(e)}", err=True)
         else:
-            print(json.dumps({'error': str(e), 'type': type(e).__name__}, indent=2))
+            print(json_module.dumps({'error': str(e), 'type': type(e).__name__}, indent=2))
         sys.exit(2)
 
 

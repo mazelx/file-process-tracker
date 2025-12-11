@@ -138,7 +138,7 @@ def log_exception(logger: logging.Logger, message: str = "Exception caught"):
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                logger.exception(f"{message} dans {func.__name__}: {str(e)}")
+                logger.exception(f"{message} in {func.__name__}: {str(e)}")
                 raise
         return wrapper
     return decorator

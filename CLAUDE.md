@@ -1,4 +1,5 @@
 - english is the only language of the project (comments, documentation, variables...)
+- we use uv for package management. `uv run` should be used to run python code
 
 
 ## Commit Guidelines

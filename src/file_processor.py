@@ -157,7 +157,7 @@ class FileProcessor:
         try:
             # Check if file already exists
             if target.exists():
-                return False, f"File already exists in target: {target.name}"
+                return False, f"File already exists in target: {target}"
 
             if not self.dry_run:
                 # Create parent directory if necessary
@@ -176,7 +176,7 @@ class FileProcessor:
                     target.unlink()  # Delete corrupted copy
                     return False, f"Incorrect size after copy ({source_size} != {target_size})"
 
-            logger.info(f"File copied: {source.name} -> {target}")
+            logger.info(f"File copied: {source} -> {target}")
             return True, None
 
         except PermissionError as e:
