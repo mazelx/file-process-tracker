@@ -163,18 +163,24 @@ class Config:
             'hash_algorithm': ('hash', 'algorithm'),
             'log_level': ('logging', 'level'),
             'exclude': ('exclude_patterns',),
+            'include': ('include_patterns',),
         }
 
         for cli_arg, config_path in cli_mappings.items():
             if cli_arg in kwargs and kwargs[cli_arg] is not None:
                 value = kwargs[cli_arg]
 
-                # Special handling for exclude (list)
+                # Special handling for exclude and include (lists)
                 if cli_arg == 'exclude':
                     current_excludes = self.get_nested_value(('exclude_patterns',), [])
                     if not isinstance(current_excludes, list):
                         current_excludes = []
                     value = current_excludes + list(value)
+                elif cli_arg == 'include':
+                    current_includes = self.get_nested_value(('include_patterns',), [])
+                    if not isinstance(current_includes, list):
+                        current_includes = []
+                    value = current_includes + list(value)
 
                 self._set_nested_value(config_path, value)
                 logger.debug(f"CLI override applied: {cli_arg} = {value}")
@@ -220,6 +226,11 @@ class Config:
     def exclude_patterns(self) -> List[str]:
         """File patterns to exclude"""
         return self.get_nested_value(('exclude_patterns',), [])
+
+    @property
+    def include_patterns(self) -> List[str]:
+        """File patterns to include"""
+        return self.get_nested_value(('include_patterns',), [])
 
     @property
     def dry_run(self) -> bool:
@@ -284,5 +295,8 @@ class Config:
 
         if self.exclude_patterns:
             summary.append(f"  Exclusions: {', '.join(self.exclude_patterns)}")
+
+        if self.include_patterns:
+            summary.append(f"  Inclusions: {', '.join(self.include_patterns)}")
 
         return '\n'.join(summary)

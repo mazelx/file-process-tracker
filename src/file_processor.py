@@ -34,6 +34,7 @@ class FileProcessor:
         compute_hash: bool = False,
         hash_algorithm: str = "xxhash",
         exclude_patterns: Optional[List[str]] = None,
+        include_patterns: Optional[List[str]] = None,
         recursive: bool = True,
         dry_run: bool = False
     ):
@@ -48,6 +49,7 @@ class FileProcessor:
             compute_hash: Enable hash computation
             hash_algorithm: Hash algorithm (xxhash or sha256)
             exclude_patterns: File patterns to exclude
+            include_patterns: File patterns to include (if specified, only these files are processed)
             recursive: Recursive traversal of subdirectories
             dry_run: Simulation mode
         """
@@ -58,6 +60,7 @@ class FileProcessor:
         self.compute_hash = compute_hash
         self.hash_algorithm = hash_algorithm
         self.exclude_patterns = exclude_patterns or []
+        self.include_patterns = include_patterns or []
         self.recursive = recursive
         self.dry_run = dry_run
 
@@ -93,7 +96,7 @@ class FileProcessor:
             pattern = "*"
 
         for path in self.source_dir.glob(pattern):
-            if path.is_file() and not self._is_excluded(path):
+            if path.is_file() and self._should_process(path):
                 files.append(path)
 
         # Alphabetical sort
@@ -102,24 +105,37 @@ class FileProcessor:
         logger.debug(f"Files found in source: {len(files)}")
         return files
 
-    def _is_excluded(self, file_path: Path) -> bool:
+    def _should_process(self, file_path: Path) -> bool:
         """
-        Check if a file should be excluded
+        Check if a file should be processed based on include/exclude patterns
 
         Args:
             file_path: Path of the file to check
 
         Returns:
-            True if the file should be excluded
+            True if the file should be processed
         """
         filename = file_path.name
 
+        # If include patterns are specified, file must match at least one
+        if self.include_patterns:
+            included = False
+            for pattern in self.include_patterns:
+                if fnmatch(filename, pattern):
+                    logger.debug(f"File included by pattern '{pattern}': {filename}")
+                    included = True
+                    break
+            if not included:
+                logger.debug(f"File not matching any include pattern: {filename}")
+                return False
+
+        # Check exclusion patterns
         for pattern in self.exclude_patterns:
             if fnmatch(filename, pattern):
                 logger.debug(f"File excluded by pattern '{pattern}': {filename}")
-                return True
+                return False
 
-        return False
+        return True
 
     def _compute_file_hash(self, file_path: Path) -> str:
         """

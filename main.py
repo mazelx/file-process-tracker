@@ -42,6 +42,11 @@ from src.logger import setup_logging
     help='File pattern to exclude (can be used multiple times)'
 )
 @click.option(
+    '--include',
+    multiple=True,
+    help='File pattern to include (can be used multiple times)'
+)
+@click.option(
     '--log-level',
     type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),
     help='Log level'
@@ -83,6 +88,7 @@ def main(
     compute_hash,
     hash_algorithm,
     exclude,
+    include,
     log_level,
     config,
     check_integrity,
@@ -108,6 +114,7 @@ def main(
             'compute_hash': compute_hash,
             'hash_algorithm': hash_algorithm,
             'exclude': exclude,
+            'include': include,
             'log_level': log_level,
         }
         cfg.apply_cli_overrides(**cli_overrides)
@@ -184,6 +191,7 @@ def main(
                 compute_hash=cfg.compute_hash,
                 hash_algorithm=cfg.hash_algorithm,
                 exclude_patterns=cfg.exclude_patterns,
+                include_patterns=cfg.include_patterns,
                 recursive=cfg.recursive,
                 dry_run=cfg.dry_run
             )
