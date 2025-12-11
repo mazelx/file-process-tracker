@@ -1,0 +1,39 @@
+# Default configuration for File Process Tracker
+
+# Directory paths
+source_dir: "/path/to/source"
+target_dir: "/path/to/target"
+
+# Database
+database:
+  path: "data/file_tracker.db"
+
+# File processing
+processing:
+  batch_size: 10  # Number of files to copy per execution
+  recursive: true  # Recursive subfolder traversal
+
+# Hash (optional for integrity verification)
+hash:
+  compute: false  # Disabled by default (performance)
+  algorithm: "xxhash"  # xxhash (fast) or sha256 (more secure)
+
+# Exclusion patterns (glob)
+exclude_patterns:
+  - "*.tmp"
+  - "*.part"
+  - ".*"  # Hidden files
+  - "Thumbs.db"
+  - ".DS_Store"
+
+# Execution options
+execution:
+  dry_run: false  # Simulation mode without actual copy
+
+# Logging configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: "logs/file_processor.log"
+  rotation_count: 7  # Number of log files to keep
+  max_bytes: 10485760  # 10 MB per log file
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
