@@ -321,13 +321,21 @@ class TestConfiguration:
         with pytest.raises(FileNotFoundError):
             Config("nonexistent.yaml")
 
-    def test_config_defaults(self, tmp_path):
+    def test_config_defaults(self, tmp_path, monkeypatch):
         """Test default configuration values"""
+        # Create test directories
+        source_dir = tmp_path / "source"
+        target_dir = tmp_path / "target"
+        source_dir.mkdir()
+        target_dir.mkdir()
+
+        # Set environment variables (required now)
+        monkeypatch.setenv("SOURCE_DIR", str(source_dir))
+        monkeypatch.setenv("TARGET_DIR", str(target_dir))
+
         # Create minimal config
         config_file = tmp_path / "test_config.yaml"
         config_file.write_text("""
-source_dir: /test/source
-target_dir: /test/target
 database:
   path: test.db
 processing:
@@ -336,8 +344,8 @@ processing:
 
         config = Config(str(config_file))
 
-        assert config.source_dir == "/test/source"
-        assert config.target_dir == "/test/target"
+        assert config.source_dir == str(source_dir)
+        assert config.target_dir == str(target_dir)
         assert config.batch_size == 5
         assert config.recursive is True  # Default
         assert config.compute_hash is False  # Default

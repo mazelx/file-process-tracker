@@ -106,9 +106,14 @@ class Config:
 
     def _validate_config(self):
         """Validate the loaded configuration"""
+        # Required environment variables
+        if not self.source_dir:
+            raise ValueError("SOURCE_DIR environment variable is required")
+        if not self.target_dir:
+            raise ValueError("TARGET_DIR environment variable is required")
+
+        # Required config fields
         required_fields = [
-            ('source_dir',),
-            ('target_dir',),
             ('database', 'path'),
             ('processing', 'batch_size'),
         ]
@@ -122,7 +127,7 @@ class Config:
         # Path validation
         source_dir = Path(self.source_dir)
         if not source_dir.exists():
-            logger.warning(f"Source directory does not exist: {source_dir}")
+            raise FileNotFoundError(f"Source directory does not exist: {source_dir}")
 
         # batch_size validation
         if self.batch_size <= 0:

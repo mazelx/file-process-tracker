@@ -23,14 +23,28 @@ if [ "$1" == "--build" ] || ! docker image inspect file-tracker:latest &> /dev/n
     shift # Enlever --build des arguments
 fi
 
+# Vérifier que les variables obligatoires sont définies
+if [ -z "$SOURCE_DIR" ]; then
+    echo "❌ Erreur: SOURCE_DIR n'est pas défini dans .env"
+    exit 1
+fi
+
+if [ -z "$TARGET_DIR" ]; then
+    echo "❌ Erreur: TARGET_DIR n'est pas défini dans .env"
+    exit 1
+fi
+
 # Lancer le container
 echo "🚀 Lancement du traitement..."
 docker run --rm \
-    -v "${SOURCE_DIR:-/volume1/Photos}":/source:ro \
-    -v "${TARGET_DIR:-/volume1/Backup}":/target \
-    -v "${DATA_DIR:-$(pwd)/data}":/app/data \
-    -v "${LOGS_DIR:-$(pwd)/logs}":/app/logs \
+    --user "$(id -u):$(id -g)" \
+    -v "${SOURCE_DIR}":/source:ro \
+    -v "${TARGET_DIR}":/target \
+    -v "$(pwd)/data":/app/data \
+    -v "$(pwd)/logs":/app/logs \
     -v "$(pwd)/config":/app/config:ro \
+    -e SOURCE_DIR=/source \
+    -e TARGET_DIR=/target \
     -e LOG_LEVEL="${LOG_LEVEL:-INFO}" \
     file-tracker:latest "$@"
 

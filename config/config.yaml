@@ -1,10 +1,8 @@
 # Default configuration for File Process Tracker
+# Paths are configured via environment variables (see .env file)
+# Required: SOURCE_DIR, TARGET_DIR
 
-# Directory paths
-source_dir: "/path/to/source"
-target_dir: "/path/to/target"
-
-# Database
+# Database (relative to working directory)
 database:
   path: "data/file_tracker.db"
 
