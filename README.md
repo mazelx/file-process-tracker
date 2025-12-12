@@ -39,11 +39,51 @@ This project addresses the need to:
 
 ## Installation
 
-### Prerequisites
-- Python 3.13 or higher
+### Option 1: Docker Deployment (Recommended for NAS)
+
+**Perfect for NAS or servers with older Python versions**
+
+#### Prerequisites
+- Docker installed
+
+#### Steps
+
+1. **Create deployment package**
+   ```bash
+   ./package.sh
+   ```
+
+2. **Transfer to your NAS**
+   - Upload `file-tracker-deploy.zip` to your NAS
+   - Extract the archive
+
+3. **Configure**
+   ```bash
+   cp .env.nas.example .env
+   vi .env  # Edit with your paths
+   ```
+
+4. **Build and run**
+   ```bash
+   # First time - build the Docker image
+   ./run.sh --build
+
+   # Run the processing
+   ./run.sh
+
+   # With options
+   ./run.sh --dry-run
+   ./run.sh --batch-size 50
+   ./run.sh --include "*.jpg"
+   ```
+
+### Option 2: Native Python Installation
+
+#### Prerequisites
+- Python 3.8 or higher
 - pip for dependency installation
 
-### Installing Dependencies
+#### Installing Dependencies
 
 ```bash
 # Clone the project
@@ -104,13 +144,44 @@ BATCH_SIZE=20
 
 ## Usage
 
-### Basic Command
+### With Docker (Recommended)
+
+```bash
+# Basic processing
+./run.sh
+
+# Dry-run mode (simulation)
+./run.sh --dry-run
+
+# Process specific number of files
+./run.sh --batch-size 50
+
+# Filter files by pattern
+./run.sh --include "*.jpg"
+./run.sh --include "*.mp4" --include "*.mov"
+
+# View statistics
+./run.sh --stats
+
+# List processed files
+./run.sh --list-processed
+
+# Check database integrity
+./run.sh --check-integrity
+
+# Clean orphaned files in target
+./run.sh --clean-orphans
+```
+
+### With Native Python
+
+#### Basic Command
 
 ```bash
 python main.py
 ```
 
-### Command Line Options
+#### Command Line Options
 
 ```bash
 # Specify the number of files to process
@@ -119,14 +190,14 @@ python main.py --batch-size 20
 # Dry-run mode (simulation)
 python main.py --dry-run
 
-# Custom paths
-python main.py --source /path/source --target /path/target
-
 # Detailed log level
 python main.py --log-level DEBUG
 
 # Exclude additional patterns
 python main.py --exclude "*.log" --exclude "temp_*"
+
+# Include only specific patterns
+python main.py --include "*.jpg" --include "*.png"
 
 # Enable hash calculation
 python main.py --compute-hash
@@ -135,7 +206,7 @@ python main.py --compute-hash
 python main.py --help
 ```
 
-### Usage Examples
+#### Usage Examples
 
 ```bash
 # First run: copy 10 files
@@ -149,6 +220,9 @@ python main.py --dry-run --batch-size 10
 
 # With hash for integrity verification
 python main.py --compute-hash --hash-algorithm sha256
+
+# Process only JPG files
+python main.py --include "*.jpg"
 ```
 
 ## Database Structure
@@ -190,7 +264,12 @@ file-process-tracker/
 ├── logs/                     # Logs with rotation
 ├── data/                     # SQLite database
 ├── tests/                    # Unit tests
-├── .env.example              # Configuration example
+├── .env.example              # Configuration example (native)
+├── .env.nas.example          # Configuration example (Docker)
+├── Dockerfile                # Docker image definition
+├── .dockerignore             # Docker build exclusions
+├── run.sh                    # Docker run script
+├── package.sh                # Deployment packaging script
 ├── main.py                   # Entry point
 ├── pyproject.toml            # Project configuration
 └── README.md                 # This documentation
